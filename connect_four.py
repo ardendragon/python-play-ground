@@ -1,4 +1,4 @@
-def set_up():
+def get_players():
     '''
     set_up() -> list
     sets up the connect four players
@@ -10,7 +10,7 @@ def set_up():
     while p1 == '':
         p1 = str(input("Player X's name is:  "))
     while p2 == '':
-        p2 = str(input("Player X's name is:  "))
+        p2 = str(input("Player O's name is:  "))
     while p1 == p2:
         p1 = str(input("Player X's name is:  "))
         p2 = str(input("Player O's name is:  "))
@@ -42,7 +42,7 @@ def gravity(grid):
     return new_grid
 
 
-def win(grid, connect_n):
+def identify_winner(grid, connect_n):
     '''
     This function takes in 
     win(list, int) -> 'X' or 'O' or ''
@@ -80,7 +80,7 @@ def win(grid, connect_n):
             if equal == connect_n:
                 return grid[row][column]
     # diagonal the other way
-    for row in range(3):
+    for row in range(n_rows-connect_n+1):
         for column in range(n_columns-connect_n, n_columns):
             equal = 0
             for place in range(connect_n):
@@ -89,10 +89,10 @@ def win(grid, connect_n):
                         equal += 1
             if equal == connect_n:
                 return grid[row][column]
-    return False
+    return ''
 
 
-def get_valid(input_str, columns, player, grid):
+def get_valid_placement(input_str, columns, player, grid):
     '''
     get_valid(str) -> int
     This function makes sure the output will be a valid column to place in.
@@ -113,16 +113,18 @@ def get_valid(input_str, columns, player, grid):
     return int(word)
 
 
-def draw_grid(rows, columns, grid):
+def draw_grid(grid):
     '''
     draw_grid(int,int,list) -> None
     draws the grid with rows and columns
     '''
     line = ''
+    rows = len(grid)
+    columns = len(grid[0])
     for column in range(columns):
         line += str(column+1)+' '
     print(line)
-    for row in range(n_rows):
+    for row in range(rows):
         line = ''
         for column in range(columns):
             line += grid[row][column]+' '
@@ -131,11 +133,12 @@ def draw_grid(rows, columns, grid):
 
 if __name__ == "__main__":
     # set up variables
-    players = set_up()
+    players = get_players()
     p1 = players[0]
     p2 = players[1]
     n_rows = 6
     n_columns = 7
+    total_turns = n_rows*n_columns
     # 4 because you need to connect 4 in a line to win
     n_connect = 4
     grid = []
@@ -144,30 +147,36 @@ if __name__ == "__main__":
         grid.append(['.']*n_columns)
 
     player_turn = 0
-    while not win(grid, n_connect):
+    winner = identify_winner(grid, n_connect)
+    while not winner and player_turn < total_turns:
+        print(player_turn)
         # draws the grid
-        draw_grid(n_rows, n_columns, grid)
+        draw_grid(grid)
         # if it's X's turn
         if player_turn % 2 == 0:
             X_col = input(
                 p1+" You're X, what column do you want to play in?  ")
-            X_col = get_valid(X_col, n_columns, p1, grid)
+            X_col = get_valid_placement(X_col, n_columns, p1, grid)
             grid[0][X_col-1] = "X"
         # if it's O's turn
         else:
             O_col = input(
                 p2+" You're O, what column do you want to play in?  ")
-            O_col = get_valid(O_col, n_columns, p2, grid)
+            O_col = get_valid_placement(O_col, n_columns, p2, grid)
             grid[0][O_col-1] = "O"
 
         # updates the grid
         for i in range(n_columns-1):
             grid = gravity(grid)
         player_turn += 1
+        winner = identify_winner(grid, n_connect)
+
+    draw_grid(grid)
 
     # who wins??????
-    draw_grid(n_rows, n_columns, grid)
-    if win(grid, n_connect) == 'X':
+    if winner == 'X':
         print("Congratulations "+p1+", you won!")
-    if win(grid, n_connect) == 'O':
+    elif winner == 'O':
         print("Congratulations "+p2+", you won!")
+    else:
+        print("It's a draw! Good game :)")
