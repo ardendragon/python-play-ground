@@ -42,6 +42,15 @@ def gravity(grid):
     return new_grid
 
 
+def put_placement(grid, column, value):
+    j = 0
+    while grid[j][column] == '.' and j < len(grid):
+        j += 1
+        if j == len(grid):
+            break
+    grid[j-1][column] = value
+
+
 def identify_winner(grid, connect_n):
     '''
     This function takes in 
@@ -149,7 +158,6 @@ if __name__ == "__main__":
     player_turn = 0
     winner = identify_winner(grid, n_connect)
     while not winner and player_turn < total_turns:
-        print(player_turn)
         # draws the grid
         draw_grid(grid)
         # if it's X's turn
@@ -157,17 +165,15 @@ if __name__ == "__main__":
             X_col = input(
                 p1+" You're X, what column do you want to play in?  ")
             X_col = get_valid_placement(X_col, n_columns, p1, grid)
-            grid[0][X_col-1] = "X"
+            put_placement(grid, X_col-1, "X")
         # if it's O's turn
         else:
             O_col = input(
                 p2+" You're O, what column do you want to play in?  ")
             O_col = get_valid_placement(O_col, n_columns, p2, grid)
-            grid[0][O_col-1] = "O"
-
+            put_placement(grid, O_col-1, "O")
         # updates the grid
-        for i in range(n_columns-1):
-            grid = gravity(grid)
+
         player_turn += 1
         winner = identify_winner(grid, n_connect)
 
